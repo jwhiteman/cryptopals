@@ -6,3 +6,15 @@ def fixed_xor(a, b)
 end
 
 puts fixed_xor(a, b)
+
+def fx(a, b)
+  h1 = a.scan(/../)
+  h2 = b.scan(/../)
+
+  # QUESTION: another way to achieve .hex?
+  m = h1.zip(h2).map { |l, r| l.hex ^ r.hex }.pack("U*")
+
+  m.unpack("H*").first
+end
+
+puts fx(a, b)
