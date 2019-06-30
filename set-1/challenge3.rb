@@ -6,7 +6,7 @@ require_relative "frequency"
 c1 = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 
 results =
-  (0..255).map do |c| # we'll iterate over 0-256 to look for the char
+  VALID_BYTES.map do |c| # we'll iterate over 0-256 to look for the char
     h1 = c1.scan(/../) # take c1 and chunk it into bytes
 
     # a 'single char xor' still needs to be the same length as the plaintext
@@ -20,7 +20,7 @@ results =
     p1 = h1.zip(h2).map { |l, r| l.hex ^ r }.pack("C*")
 
     # return the score of the plaintext, the plaintext, and the char
-    [FrequencyMatch.score(p1), p1, c.chr]
+    [frequency_match_score(p1), p1, c.chr]
   end
 
 puts results.sort.last
