@@ -14,7 +14,7 @@ open("https://cryptopals.com/static/challenge-data/4.txt") do |f|
     with_index do |possible_ciphertext, idx|
       possible_ciphertext.chomp!
 
-      VALID_BYTES.map do |possible_key|
+      SINGLE_BYTE_KEYS.map do |possible_key|
         h1 = possible_ciphertext.scan(/../)
         h2 = Array.new(h1.length) { possible_key }
 
@@ -34,8 +34,10 @@ open("https://cryptopals.com/static/challenge-data/4.txt") do |f|
   results =
     results.flatten(1).sort
 
+  # z = results.detect { |(_, m, _, _, _)| m == "Now that the party is jumping\n" }
+
   winner = results.last
-  
+
   output =
     {
       score: winner[0],

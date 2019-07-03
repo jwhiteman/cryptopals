@@ -6,7 +6,7 @@ require_relative "frequency"
 c1 = "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 
 results =
-  VALID_BYTES.map do |c| # we'll iterate over 0-256 to look for the char
+  SINGLE_BYTE_KEYS.map do |c| # we'll iterate over 0-256 to look for the char
     h1 = c1.scan(/../) # take c1 and chunk it into bytes
 
     # a 'single char xor' still needs to be the same length as the plaintext
