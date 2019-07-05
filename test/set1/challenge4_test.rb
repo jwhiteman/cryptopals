@@ -1,12 +1,7 @@
 # https://cryptopals.com/sets/1/challenges/4
+require_relative "../test_helper"
 
-require "pry"
-require "open-uri"
-require_relative "frequency"
-
-open("https://cryptopals.com/static/challenge-data/4.txt") do |f|
-  data = f.read
-
+def single_char_xor(data)
   results =
     data.
     lines.
@@ -34,18 +29,25 @@ open("https://cryptopals.com/static/challenge-data/4.txt") do |f|
   results =
     results.flatten(1).sort
 
-  # z = results.detect { |(_, m, _, _, _)| m == "Now that the party is jumping\n" }
+  results.last
+end
 
-  winner = results.last
+module Set1
+  class Challenge4Test < Test::Unit::TestCase
+    def test_challenge_4
+      data = IO.read("test/fixtures/challenge-4-data.txt")
 
-  output =
-    {
-      score: winner[0],
-      plaintext: winner[1],
-      key: winner[2],
-      ciphertext: winner[3],
-      line_number: winner[4].succ
-    }
+      expected = [
+        17,
+        "Now that the party is jumping\n",
+        "5",
+        "7b5a4215415d544115415d5015455447414c155c46155f4058455c5b523f",
+        170
+      ]
 
-  puts output.inspect
+      actual = single_char_xor(data)
+
+      assert_equal expected, actual
+    end
+  end
 end

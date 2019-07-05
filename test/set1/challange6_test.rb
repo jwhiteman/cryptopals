@@ -1,6 +1,5 @@
-require "open-uri"
-require "base64"
-require_relative "frequency"
+# https://cryptopals.com/sets/1/challenges/6
+require_relative "../test_helper"
 
 def distance(s1, s2)
   b1 = s1.unpack("b*").first.scan(/./)
@@ -12,16 +11,16 @@ def distance(s1, s2)
   end
 end
 
-def repeat_key_xor(key, plaintext)
+def repeat_key_xor_v2(key, plaintext)
   plaintext_bytes = plaintext.chomp.bytes
   key_bytes       = key.bytes
 
   plaintext_bytes.
     map.
     with_index do |pb, idx|
-      encrypted_byte =
-        pb ^ key_bytes[idx % key_bytes.length]
-    end.pack("C*")
+      pb ^ key_bytes[idx % key_bytes.length]
+    end.
+    pack("C*")
 end
 
 def possible_keylengths(ciphertext)
@@ -86,14 +85,25 @@ def possible_key(keysize, ciphertext)
   end.join
 end
 
-open("https://cryptopals.com/static/challenge-data/6.txt") do |f|
-  ciphertext = f.read
-  ciphertext = ciphertext.lines.map(&:chomp).join.unpack("m0")[0]
-  keylength  = possible_keylengths(ciphertext)[0].last
-  key        = possible_key(keylength, ciphertext)
-  plaintext  = repeat_key_xor(key, ciphertext)
+module Set1
+  class Challenge6Test < Test::Unit::TestCase
+    def test_challenge_6
+      ciphertext = IO.read("test/fixtures/challenge-6-data.txt")
+      ciphertext = ciphertext.lines.map(&:chomp).join.unpack("m0")[0]
 
-  puts "KEY: #{key}"
-  puts "PLAINTEXT:"
-  puts plaintext
+      keylength  = possible_keylengths(ciphertext)[0].last
+      key        = possible_key(keylength, ciphertext)
+
+      plaintext  = repeat_key_xor_v2(key, ciphertext)
+
+      expected   = "Terminator X: Bring the noise"
+      assert_equal expected, key
+
+      expected   = "I'm back and I'm ringin' the bell \n"
+      assert_equal expected, plaintext.lines.first
+
+      expected   = "Play that funky music \n"
+      assert_equal expected, plaintext.lines.last
+    end
+  end
 end

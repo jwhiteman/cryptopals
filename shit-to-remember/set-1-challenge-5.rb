@@ -1,5 +1,6 @@
 # lesson, if you're going to join hex strings, make sure
 # that they all have equal width - e.g "b" is "0b", etc
+# solution: use `sprintf("%02X", encrypted_byte)` for padding.
 
 # from cryptopals
 c1 =
@@ -21,7 +22,6 @@ c3 =
 
 key = "ICE"
 key_bytes = key.bytes
-
 
 p1 =
   c3.
