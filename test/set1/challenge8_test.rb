@@ -27,7 +27,7 @@ module Set1
           block2 = OpenSSL::Random.random_bytes(size)
 
           calculate_distance(block1, block2) / size.to_f
-        end;nil
+        end
 
       puts "Done. Took #{Time.now - t} seconds"
 
