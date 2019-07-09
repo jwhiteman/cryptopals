@@ -16,7 +16,7 @@ module Set2
         end
 
 
-      block << "\x04" * padding_amount
+      (block.bytes + ([padding_amount] * padding_amount)).pack("C*")
     end
   end
 
@@ -31,7 +31,10 @@ module Set2
       assert_equal "YELLOW SUBMARINE", result
 
       result = pkcs_7("YELLOW SUBMARINES", 8)
-      assert_equal "YELLOW SUBMARINES\x04\x04\x04\x04\x04\x04\x04", result
+      assert_equal "YELLOW SUBMARINES\x07\x07\x07\x07\x07\x07\x07", result
+
+      result = pkcs_7("Y", 16)
+      assert_equal "Y\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F\x0F", result
     end
   end
 end
