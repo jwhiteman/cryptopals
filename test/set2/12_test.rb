@@ -65,10 +65,9 @@ module Set2
 
     def ecb_or_cbc(c)
       acc = Hash.new { 0 }
-      c.each_char.each_slice(16).reduce(acc) do |acc, slice|
-        acc[slice] += 1
 
-        acc
+      c.each_char.each_slice(16) do |slice|
+        acc[slice] += 1
       end
 
       if acc.values.any? { |v| v > 1 }

@@ -99,10 +99,9 @@ module Set2
 
     def ecb_or_cbc(c)
       acc = Hash.new { 0 }
-      c.each_char.each_slice(16).reduce(acc) do |acc, slice|
-        acc[slice] += 1
 
-        acc
+      c.each_char.each_slice(16) do |slice|
+        acc[slice] += 1
       end
 
       if acc.values.any? { |v| v > 1 }
@@ -117,7 +116,11 @@ module Set2
     include Challenge11
 
     def test_challenge_11
-      100.times.map { ecb_or_cbc(encryption_oracle("a" * 160)) }.uniq
+      results =
+        10.times.map { ecb_or_cbc(encryption_oracle("a" * 160)) }.uniq
+
+      assert results.include?("ECB")
+      assert results.include?("CBC")
     end
   end
 end
