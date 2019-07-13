@@ -16,7 +16,7 @@ module Set2
       else
         p = pkcs_7(p, 16)
 
-        _ebc_encrypt(p, key)
+        _ecb_encrypt(p, key)
       end
     end
 
@@ -43,7 +43,7 @@ module Set2
       p.each_char.each_slice(16) do |pn|
         pn       = pn.join
         pn       = _xor(previous, pn)
-        cn       = _ebc_encrypt(pn, key)
+        cn       = _ecb_encrypt(pn, key)
         previous = cn
 
         acc << cn
@@ -57,7 +57,7 @@ module Set2
       acc      = []
       c.each_char.each_slice(16) do |cn|
         cn       = cn.join
-        x        = _ebc_decrypt(cn, key)
+        x        = _ecb_decrypt(cn, key)
         p        = _xor(previous, x)
         previous = cn
 
@@ -67,7 +67,7 @@ module Set2
       acc.join
     end
 
-    def _ebc_encrypt(p1, key)
+    def _ecb_encrypt(p1, key)
       aes         = OpenSSL::Cipher.new("AES-128-ECB")
       aes.encrypt
       aes.key     = key
@@ -76,7 +76,7 @@ module Set2
       aes.update(p1) + aes.final
     end
 
-    def _ebc_decrypt(c1, key)
+    def _ecb_decrypt(c1, key)
       aes         = OpenSSL::Cipher.new("AES-128-ECB")
       aes.decrypt
       aes.key     = key
@@ -97,7 +97,7 @@ module Set2
       acc.pack("C*")
     end
 
-    def ebc_or_cbc(c)
+    def ecb_or_cbc(c)
       acc = Hash.new { 0 }
       c.each_char.each_slice(16).reduce(acc) do |acc, slice|
         acc[slice] += 1
@@ -117,7 +117,7 @@ module Set2
     include Challenge11
 
     def test_challenge_11
-      1000.times.map { ebc_or_cbc(encryption_oracle("a" * 160)) }.uniq
+      100.times.map { ecb_or_cbc(encryption_oracle("a" * 160)) }.uniq
     end
   end
 end
