@@ -4,7 +4,3 @@ require "test/unit"
 require "openssl"
 require "pry"
 require "base64"
-
-require "frequency"
-
-include Frequency
