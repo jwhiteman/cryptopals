@@ -98,6 +98,59 @@ module Set2
       # 3. Decrypt the message
       numblocks = encryption_oracle("").length / 16
 
+      # How this stupid thing works:
+      #
+      # 1. figure out many blocks long the unknown-text is, after padding.
+      #
+      # 2. for this explanation, assume 4-byte blocks.
+      # let's say the uknown text looks like this (0's represent padding):
+      #
+      # |A B C D|E F 0 0|
+      #
+      # In this exercise, we can insert text at the beginning in such a way
+      # that we can isolate a single byte of unknown text in a single block
+      # with every other character being chars that we control (X's represent
+      # chars that we control):
+      #
+      # |X X X A|B C D E|F 0 0 0|
+      #
+      # So that first block is something we can brute force. Assuming the
+      # unknown text is ascii, then there are only 256 possibilities. Let's
+      # save the first block above in a variable (let's say real_block_1).
+      # Then let's feed the oracle all 256 possibilities of the form
+      # `oracle("XXX#{byte}")`. In each iteration, we'll take the first
+      # block and match it against `real_block_1`. When we find a match,
+      # then we know that `byte.chr` is the the first character of the unknown
+      # text.
+      #
+      # |X X A B|C D E F| => save first block again
+      #
+      # Iterate through the 256 ascii bytes: `oracle("XXA#{byte}")`, looking
+      # at the resulting first block and trying to find a match against the
+      # saved block above.
+      #
+      # Eventually we'll get to the end of the first block:
+      #
+      # |A B C D|E F 0 0|. D is still unknown. Save the first block
+      #
+      # Iterate through (0..255).each { |byte| oracle("ABC#{byte}") }, scanning
+      # the first block in each, and comparing to the saved block above.
+      #
+      # Now we've got the first block, but need to move on to the subsequent
+      # blocks (if there are any).
+      #
+      # |X X X A|B C D E|F 0 0 0|. E is unknown. Save the first TWO blocks now.
+      #
+      # `(0..255).each { |byte| oracle("XXXABCD#{byte}") }`. Now scan the first
+      # two bytes of each iteration and look for a match on the saved two-block
+      # variable above.
+      #
+      # In this way you can get each char of the unknown text.
+      #
+      # I'm guessing this is overly complicated and that there is a 1 liner
+      # that will do the whole thing in a better way. But you gotta start
+      # somewhere.
+
       previous_blocks = []
       (1..numblocks).each do |m|
         acc = []
