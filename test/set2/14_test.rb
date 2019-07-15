@@ -99,53 +99,37 @@ module Set2
         end
       end
 
-      discovered_chars = []
-      done             = false
-      block_index      = 1
+      bytes_to_skip   = blocks_to_skip * 16
+      previous_blocks = []
+      unknown_message = catch(:done!) do
+        (1..1/0.0).each do |m|
+          acc = []
+          15.downto(0).each do |n|
+            padding = ("A" * correction) + ("A" * n)
+            range   = (bytes_to_skip...(bytes_to_skip + (16 * m)))
+            block   = encryption_oracle(padding)[range]
 
-      while !done do
-        15.downto(0) do |n|
-          query_to_isolate_last_byte = ("A" * correction) + ("A" * n)
+            char = (0..255).detect do |byte|
+              p = [
+                padding,
+                previous_blocks,
+                acc,
+                byte.chr
+              ].flatten.join
 
-          query_result_with_unknown_byte =
-            encryption_oracle(query_to_isolate_last_byte)
+              encryption_oracle(p)[range] == block
+            end
 
-          bytes_to_skip = blocks_to_skip * 16
-
-          range_of_isolated_block =
-            (bytes_to_skip...(bytes_to_skip + (16 * block_index)))
-
-          block_with_unknown_last_byte =
-            query_result_with_unknown_byte[range_of_isolated_block]
-
-          char_found = false
-          (0..255).each do |guess|
-            query_with_guess = [
-                                 query_to_isolate_last_byte,
-                                 discovered_chars,
-                                 guess.chr
-                               ].flatten.join
-
-            query_result_with_guess = encryption_oracle(query_with_guess)
-
-            block_with_guess_last_byte =
-              query_result_with_guess[range_of_isolated_block]
-
-            if block_with_guess_last_byte == block_with_unknown_last_byte
-              char_found = true
-              discovered_chars << guess.chr
-
-              break
+            if char
+              acc << char.chr
+            else
+              throw :done!, [previous_blocks, acc].flatten.join
             end
           end
 
-          done = true if !char_found
+          previous_blocks << acc
         end
-
-        block_index += 1
       end
-
-      unknown_message = discovered_chars.join
 
       assert_equal(
         unknown_message.lines[0], "Rollin' in my 5.0\n"
