@@ -6,28 +6,6 @@ module Set2
     KEY = OpenSSL::Random.random_bytes(16).freeze
     IV  = OpenSSL::Random.random_bytes(16).freeze
 
-    # not sure if this is needed for this challenge or not...
-    def undo_pkcs7(str)
-      chars   = []
-      padding = []
-
-      str.bytes.each_with_index do |byte, idx|
-        if byte > 15
-          chars << byte.chr
-        else
-          if padding.empty? && (str.length - idx == byte)
-            padding << byte
-          elsif byte == padding.first
-            padding << byte
-          else
-            raise "padding error X"
-          end
-        end
-      end
-
-      chars.join
-    end
-
     def pkcs_7(block, blocksize)
       padding_amount =
         if block.length < blocksize
@@ -104,33 +82,49 @@ module Set2
 
       acc.pack("C*")
     end
+
+    def f1(userdata)
+      cleaned_userdata = userdata.gsub(/([;=])/, "'" + '\1' + "'")
+
+      data = [
+        "comment1=cooking%20MCs;userdata=",
+        cleaned_userdata,
+        ";comment2=%20like%20a%20pound%20of%20bacon"
+      ].join
+
+      data = pkcs_7(data, 16)
+
+      cbc_encrypt(data, KEY, IV)
+    end
+
+    def admin?(ciphertext)
+      data = cbc_decrypt(ciphertext, KEY, IV)
+
+      !!(data =~ /;admin=true;/)
+    end
   end
 
   class Challenge16Test < Test::Unit::TestCase
     include Challenge16
 
+    # LESSON: it's not as simple as taking the byte integer value and
+    # simply incrementing it - because going from byte value 3 to byte value
+    # 4, for example, changes more than 1 bit.
+    #
+    # If you just want to flip a single bit, then byte-value ^ 1 seems to be
+    # a better way to go.
     def test_challenge16
-    end
+      c1     = f1(":admin<true")
+      refute admin?(c1)
 
-    # TODO: why does CBC have this property?
-    # TODO: write the functions as Rx'd in the challenge
-    # TODO: how to add in admin=true ?
-    def test_scratch
-      p1 = "WE ALL LIVE IN A YELLOW SUBMARINE, MOTHERFUKERS!"
-      c1 = cbc_encrypt(p1, KEY, IV)
+      blocks = c1.bytes.each_slice(16).to_a
 
-      b1, b2, b3 = c1.bytes.each_slice(16).to_a
+      blocks[1][0]  = blocks[1][0] ^ 1
+      blocks[1][6]  = blocks[1][6] ^ 1
 
-      eb1    = b1.clone
-      eb1[0] = b1[0].succ
+      c2 = blocks.flatten.pack("C*")
 
-      c2 = [eb1, b2, b3].flatten.pack("C*")
-
-      p2 = cbc_decrypt(c2, KEY, IV)
-
-      p2b1, p2b2, p2b3 = p2.each_char.each_slice(16).to_a
-
-      binding.pry
+      assert admin?(c2)
     end
   end
 end
