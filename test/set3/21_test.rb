@@ -93,8 +93,6 @@ module Set3
       prng.seed_mt(5489)
 
       results = 10.times.map { prng.extract_number }
-
-      binding.pry
     end
   end
 end
