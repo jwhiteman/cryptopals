@@ -28,15 +28,6 @@ module Set3
     attr_accessor :mt
     attr_accessor :index
 
-    # notes: the wikipedia psuedocode does strange things with the index;
-    # it initializes it to N+1, then in the seed function, to N+1; when
-    # it extracts a random number it checks to see if the index is N, then
-    # twists, then sets the index back to 0. In the other implementations I
-    # read (and seems clearer), is to set the index to 0, and test for 0 and
-    # twist - and increment the index with a % N to return it to zero
-    #
-    # although...in this changed version, we init @mt and then twist right
-    # off the bat
     def initialize(seed)
       @mt    = []
       @mt[0] = seed

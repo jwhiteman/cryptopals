@@ -1,2 +1,0 @@
-- simplify 1.6 `possible_keylengths` 
-- redo 1.8
