@@ -1,14 +1,11 @@
 # https://cryptopals.com/sets/3/challenges/21
 #
 # https://en.wikipedia.org/wiki/Mersenne_Twister
-# https://www.techotopia.com/index.php/Ruby_Operators#Ruby_Bitwise_Operators
-# https://stackoverflow.com/questions/3270307/how-do-i-get-the-lower-8-bits-of-int
-# https://create.stephan-brumme.com/mersenne-twister/
 #
 require_relative "../test_helper"
 
 module Set3
-  class MersenneTwister
+  class MT19937
     W          = 32
     N          = 624
     M          = 397
@@ -21,6 +18,7 @@ module Set3
     U          = 11
     S          = 7
     T          = 15
+    L          = 18
     D          = 0xFFFF_FFFF
     B          = 0x9D2C_5680
     C          = 0xEFC6_0000
@@ -30,36 +28,35 @@ module Set3
     attr_accessor :mt
     attr_accessor :index
 
-    def initialize
+    # notes: the wikipedia psuedocode does strange things with the index;
+    # it initializes it to N+1, then in the seed function, to N+1; when
+    # it extracts a random number it checks to see if the index is N, then
+    # twists, then sets the index back to 0. In the other implementations I
+    # read (and seems clearer), is to set the index to 0, and test for 0 and
+    # twist - and increment the index with a % N to return it to zero
+    #
+    # although...in this changed version, we init @mt and then twist right
+    # off the bat
+    def initialize(seed)
       @mt    = []
-      @index = N + 1
-    end
-
-    def seed_mt(seed)
-      self.index = N
-      self.mt[0] = seed
+      @mt[0] = seed
 
       (1..(N-1)).each do |i|
-        self.mt[i] =
-          (F * (mt[i-1] ^ (mt[i-1] >> (W-2))) + i) & 0xFFFF_FFFF
+        @mt[i] =
+          (F * (@mt[i-1] ^ (@mt[i-1] >> (W-2))) + i) & 0xFFFF_FFFF
       end
+
+      @index = N
     end
 
-    def extract_number
-      if index >= N
-        if index > N
-          raise "Generator was never seeded"
-        else
-          twist
-        end
-      end
+    def rand
+      twist if index == N
 
       y = mt[index]
       y = y ^ ((y >> U) & D)
       y = y ^ ((y << S) & B)
-      y = y ^ ((y >> T) & C)
-      y = y ^ (y >> 1)
-
+      y = y ^ ((y << T) & C)
+      y = y ^ (y >> L)
       self.index = index + 1
 
       y & 0xFFFF_FFFF
@@ -80,19 +77,22 @@ module Set3
 
       self.index = 0
     end
-
-    def inspect
-      "<PRNG>"
-    end
   end
 
   class Challenge21Test < Test::Unit::TestCase
     def test_challenge_21
-      prng = MersenneTwister.new
+      prng = MT19937.new(5489)
 
-      prng.seed_mt(5489)
-
-      results = 10.times.map { prng.extract_number }
+      assert_equal prng.rand, 3499211612
+      assert_equal prng.rand, 581869302
+      assert_equal prng.rand, 3890346734
+      assert_equal prng.rand, 3586334585
+      assert_equal prng.rand, 545404204
+      assert_equal prng.rand, 4161255391
+      assert_equal prng.rand, 3922919429
+      assert_equal prng.rand, 949333985
+      assert_equal prng.rand, 2715962298
+      assert_equal prng.rand, 1323567403
     end
   end
 end
