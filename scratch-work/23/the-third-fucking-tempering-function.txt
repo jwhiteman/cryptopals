@@ -1,0 +1,49 @@
+;; shift of 7
+;; M is 0x9D2C5680
+
+slice: 4    3       2       1       0
+       1101_0100110_1101111_1100110_1110101 A
+
+11010100110_1101111_1100110_1110101_0000000 A << 7
+       1001_1101001_0110001_0101101_0000000 M
+       ------------------------------------
+       0000_1101001_0100000_0100101_0000000 (A << 7) & M
+       1101_0100110_1101111_1100110_1110101 A
+       ------------------------------------
+       1101_1001111_1001111_1000011_1110101 D := A ^ ((A << 7) & M)
+                    1111111_0000000_0000000
+
+
+So we know we've got 1110101 for sure, which we can label A[s0].
+
+How to get the next slice of 7 bits from A, A[s1]: 1100110?
+
+A[s1] = (A[s0] & M[s1]) ^ D[s1]
+
+More generally, maybe:
+
+  A[sN] = (A[sN-1] & M[sN]) ^ D[sN]
+  A[s0] = D[s0]
+
+QUESTIONS:
+1. how to handle A[s5]?
+- may need to use (2 ** shift-width) - 1 as a mask, but the &'nding against
+  the final bits of M may accomplish this.
+
+2. is there a nicer way than iterating through slices of bits? prolly, but
+i'm going to go with the way i figured out above.
+
+PSEUDOCODE:
+M   = 0x9D2C5680
+s0  = D & (2 ** 7) - 1
+acc = [s0]
+
+(1..4).each do |n|
+  mask = ((2 ** 7) - 1) << (n * 7)
+
+  sn = (acc.last & (M & mask)) ^ (d & mask)
+
+  acc << sn
+end
+
+acc.reduce(:+)

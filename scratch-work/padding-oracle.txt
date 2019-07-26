@@ -2,22 +2,6 @@
 - https://crypto.stackexchange.com/questions/58982/understanding-how-padding-works-when-using-block-cipher
 - https://cryptosys.net/pki/manpki/pki_paddingschemes.html
 
-¬
-∧
-∨
-→
-↔︎
-⊕
-≣
-≢
-∅
-⊂
-⊃
-∀
-∃
-⊆
-⊇
-
 So, how the CBC oracle works. Start by drawing out how CBC decryption works for two contiguous
 ciphertext blocks, c1 and c2.
 
@@ -53,10 +37,10 @@ The dumdum oracle will be sure to tell us when we've got p2[14] = 2 and p2[15] =
 figuring out p2[15], so we can use c'1[15] ⊕ 2 to force p2[15] to 2).
 
  then we can figure out p2[14].
- 
+
  It's c1[14] ⊕ c'1[14], from the exact same steps as above: we use c'1[14] as x[14]
  and then solve for p2[14].
- 
+
  TODO: what if the block itself is already, validly x01?
  TODO: what if the block is all padding (i.e to "pad" a block that is full)
  TODO: explain how to get the first block, via the IV

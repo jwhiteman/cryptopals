@@ -1,0 +1,75 @@
+def temper1(x = nil)
+  if x.nil?
+    x = (2 ** 32) - rand(1_000_000_000)
+  end
+  y = (x << 15) & 0xEFC6_0000
+  z = y ^ x
+  
+  puts sprintf("%032b", x)
+  puts sprintf("%032b", y)
+  puts sprintf("%032b", z)
+  
+  z
+end
+
+# worked example:
+0b110100110110100_10010110000000111 # we want to get to here
+0b100001100000001_00000000000000000
+0b010101010110101_10010110000000111 # we got this
+
+# so we can take the last group of bytes, whole
+# it looks like we can take the first set of bytes and xor it
+# against the first set of bytes on line 27. that will give us
+# what we need.
+
+# so how to get that (e.g 100001100000001)?
+
+# look at the first N bytes of the last set of bytes
+# (the highest 15 of the last 17, i think):
+# 100001100000001
+# that is AND'd against
+# 111011111100011
+# to get the `100001100000001` that we want
+#
+# so what is 111011111100011?
+# it's 0xEFC60000 >> 17
+
+0b110100110110100_100101100000001_11000000000000000
+0b000000000000000_111011111100011_00000000000000000
+0b000000000000000_100001100000001_00000000000000000
+
+# or, ok, so...
+0b010101010110101_10010110000000111 ^ ((0b010101010110101_10010110000000111 << 15) & 0xEFC60000)
+
+
+# y = y ^ ((y << S) & B)
+def temper2(a = nil)
+  if a.nil?
+    a = (2 ** 32) - rand(1_000_000_000)
+  end
+  b = a << 7
+  c = b & 0x9D2C_5680
+  d = c ^ a
+  
+  puts sprintf("%032b", a)
+  puts sprintf("%032b", b)
+  puts sprintf("%032b", c)
+  puts sprintf("%032b", d)
+  
+  d
+end
+
+# y = y ^ ((y << S) & B)
+000000011011001010101101010011110001000 # a
+110110010101011010100111100010000000000 # b
+000000010011101001011000101011010000000 # 0x9D2C_5680
+000000010001001000000000100010000000000 # c
+000000001010000010101101110001110001000 # d
+
+
+010100000101011011100011100010000000000 # d << 7
+000000010011101001011000101011010000000 # 0x9D2C_5680
+000000000001001001000000100010000000000 # 
+000000001011001011101101010011110001000 # a? (off by 1 bit)
+000000011011001010101101010011110001000 # the real a. dang.
+

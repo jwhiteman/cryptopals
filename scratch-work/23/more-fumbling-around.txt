@@ -1,0 +1,46 @@
+# seems like x ^ y will look like the bigger of the two
+# seems x & y will look like the smaller of the two
+
+# y ^ (y >> 18)
+y1  = 0xFF_FF_FF_FF
+y2 = y1 >> 18
+y3 = y1 ^ y2
+
+
+z1 = 0xFFFF_C000
+z2 = (z1 << 18) & 0xFF_FF_FF_FF
+z3 = z1 ^ z2
+
+(y1 - z3) == y2
+
+# what needs to be done to turn z3 into y1?
+
+##############################################
+
+y1  = 0xDEAD_CAFE
+y2 = y1 >> 18
+y3 = y1 ^ y2
+
+z1  = 0xDEAD_FD55
+z2 = ((z1 << 18) & 0xFF_FF_FF_FF)
+z3 = z1 ^ z2
+
+(y1 - z3) == y2
+
+##############################################
+
+y  = 0xDEAD_CAFE
+y2 =(0xDEAD_CAFE ^ (0xDEAD_CAFE >> 11))
+
+y3 = (y2 << 7)
+y4 = (y3 & 0x9D2C_5680)
+y5 = y2 ^ y4
+
+"110111101011011000011111010001110000000"
+"000000010011101001011000101011010000000"
+
+0b11001000011000000001010000000
+
+y6 = (y5 << 15)
+y7 = (y6 & 0xEFC6_0000)
+y8 = y5 ^ y7
