@@ -13,12 +13,11 @@ module Set3
     def untemper(d)
       d = d ^ (d >> L)
       d = d ^ ((d << T) & C)
-      d = _untemper_third(d)
+      d = _untemper_second(d)
       d = d ^ (d >> U) ^ (d >> 22)
     end
 
-    # I'm sure there is a nice 1 liner for this, but i couldn't figure it out...
-    def _untemper_third(d)
+    def _untemper_second(d)
       s0  = d & (2 ** S) - 1
       acc = [s0]
 
@@ -44,13 +43,15 @@ module Set3
     end
 
     def test_challenge_23
-      prng        = MT19937.new(5489)
+      seed        = rand(2 ** 32)
+      prng        = MT19937.new(seed)
 
       clone       = MT19937.new(0)
       clone.mt    = 624.times.map { untemper(prng.rand) }
       clone.index = 624
 
-      (624 * 5).times do
+      # test through a couple of cycles...
+      (624 * 2).times do
         assert_equal clone.rand, prng.rand
       end
     end
