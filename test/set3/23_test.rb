@@ -1,3 +1,7 @@
+# this was hard.
+# how it felt to finally solve this, after 10+ hours, with no outside help:
+# https://www.youtube.com/watch?v=t89w_licoAs
+
 # https://cryptopals.com/sets/3/challenges/23
 require_relative "../test_helper"
 

@@ -2,8 +2,6 @@
 #
 # https://en.wikipedia.org/wiki/Bigram
 # https://en.wikipedia.org/wiki/Trigram
-# https://www.coursera.org/learn/crypto/lecture/xAJaD/history-of-cryptography
-#
 require_relative "../test_helper"
 
 module Set3
@@ -78,27 +76,31 @@ module Set3
       aes.update(p1) + aes.final
     end
 
-    def counts(array)
-      accumulator = Hash.new { |h, k| h[k] = 0 }
+    class Key
+      attr_reader :key
 
-      array.reduce(accumulator) do |acc, e|
-        acc[e] += 1
+      def initialize
+        @results = []
+        @key     = []
+      end
 
-        acc
-      end.sort_by { |k, v| v }
+      def add(keystream_byte)
+        key << keystream_byte
+      end
     end
 
-    def bytes_at(array, n)
-      array.map { |s| s[n] }
-    end
+    def decrypt(ciphertexts, k)
+      k = k.key
 
-    def fixed_xor(string, xor_byte)
-      string.
-        each_byte.
-        map.
-        with_index do |byte, idx|
-          byte ^ xor_byte
-        end.pack("C*")
+      ciphertexts.map do |c|
+        c[0..k.length-1].
+          bytes.
+          zip(k).
+          map do |l, r|
+            l ^ r
+          end.
+          pack("C*")
+      end
     end
   end
 
@@ -106,7 +108,6 @@ module Set3
     include Challenge19
 
     def test_challenge_19
-=begin
       ciphertexts =
         MSGS.
         map do |msg|
@@ -115,17 +116,54 @@ module Set3
           ctr(msg, KEY, NONCE)
         end
 
-      b1 = ciphertexts.map { |c| c[0..15] }
+      k = Key.new
 
-      e0 = counts(bytes_at(b1, 0))
-      e1 = counts(bytes_at(b1, 1))
-      e2 = counts(bytes_at(b1, 2))
+      k.add(ciphertexts[0][0].ord ^ "I".ord)
+      k.add(ciphertexts[0][1].ord ^ " ".ord)
+      k.add(ciphertexts[20][2].ord ^ "a".ord)
+      k.add(ciphertexts[25][3].ord ^ "s".ord)
+      k.add(ciphertexts[1][4].ord ^ "n".ord)
+      k.add(ciphertexts[1][5].ord ^ "g".ord)
+      k.add(ciphertexts[27][6].ord ^ "h".ord)
+      k.add(ciphertexts[27][7].ord ^ "t".ord)
+      k.add(ciphertexts[15][8].ord ^ "l".ord)
+      k.add(ciphertexts[15][9].ord ^ "e".ord)
+      k.add(ciphertexts[28][10].ord ^ "v".ord)
+      k.add(ciphertexts[28][11].ord ^ "e".ord)
+      k.add(ciphertexts[3][12].ord ^ "e".ord)
+      k.add(ciphertexts[3][13].ord ^ "n".ord)
+      k.add(ciphertexts[3][14].ord ^ "t".ord)
+      k.add(ciphertexts[3][15].ord ^ "u".ord)
+      k.add(ciphertexts[3][16].ord ^ "r".ord)
+      k.add(ciphertexts[3][17].ord ^ "y".ord)
+      k.add(ciphertexts[31][18].ord ^ "o".ord)
+      k.add(ciphertexts[31][19].ord ^ "r".ord)
+      k.add(ciphertexts[31][20].ord ^ "i".ord)
+      k.add(ciphertexts[31][21].ord ^ "o".ord)
+      k.add(ciphertexts[31][22].ord ^ "u".ord)
+      k.add(ciphertexts[31][23].ord ^ "s".ord)
+      k.add(ciphertexts[24][24].ord ^ "e".ord)
+      k.add(ciphertexts[19][25].ord ^ "l".ord)
+      k.add(ciphertexts[19][26].ord ^ "l".ord)
+      k.add(ciphertexts[32][27].ord ^ "n".ord)
+      k.add(ciphertexts[32][28].ord ^ "g".ord)
+      k.add(ciphertexts[29][29].ord ^ "h".ord)
+      k.add(ciphertexts[29][30].ord ^ "t".ord)
+      k.add(ciphertexts[25][31].ord ^ "d".ord)
+      k.add(ciphertexts[4][32].ord ^ "h".ord)
+      k.add(ciphertexts[4][33].ord ^ "e".ord)
+      k.add(ciphertexts[4][34].ord ^ "a".ord)
+      k.add(ciphertexts[4][35].ord ^ "d".ord)
+      k.add(ciphertexts[37][36].ord ^ "n".ord)
+      k.add(ciphertexts[37][37].ord ^ ",".ord)
 
-      # c[n]  = p[n] XOR ks[n]
-      # c[n]  = "e"  XOR ks[n]
-      #
-      # ks[n] = c[suspiciously-popular-byte] XOR "e"
-=end
+      results = decrypt(ciphertexts, k)
+
+      MSGS.each_with_index do |msg, idx|
+        msg = Base64.strict_decode64(msg)
+
+        assert_equal msg, results[idx]
+      end
     end
   end
 end
