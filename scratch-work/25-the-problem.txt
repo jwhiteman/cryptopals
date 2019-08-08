@@ -1,0 +1,16 @@
+text bytes:        2  7   11  42 99 102 230 72
+keystream bytes:   99 100 255 87 64 17  30  31
+
+text bytes:                   2  7   11  42 99 102 230 72
+offset:            3
+keystream bytes:   99 100 255 87 64 17  30  31
+
+ideal:
+  keystream is a function, takes a nonce and a counter; client handles incrementing
+
+  text is iterated over byte by byte, no index needed
+
+  keystream bytes are consumed, popped off (keeping w/ the idea of no idx)
+  keystream is on-demand, if empty, generate more bytes
+
+  the first (offset % 16) bytes of the keystream are thrown away at the beginning.
