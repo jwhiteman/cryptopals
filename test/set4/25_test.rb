@@ -84,7 +84,6 @@ module Set4
 
       # we control p2 and c2, so we can get the original keystream back out.
       # whoops.
-
       discovered_keystream_bytes =
         p2.bytes.zip(c2.bytes).map { |l, r| l ^ r }
 

@@ -66,8 +66,8 @@ module Set4
       idx = f1("").
             bytes.
             zip(f1("A").bytes).
-            each_with_index do |(l, r), idx|
-              break idx if l != r
+            each_with_index do |(l, r), index|
+              break index if l != r
             end
 
       p1          = "XadminXtrue"
