@@ -45,60 +45,56 @@ module Set1
     include Challenge8
 
     def test_challenge_8
-      require "open-uri"
-
       blocksize = 16
+      raw_data  = IO.read("test/fixtures/challenge-8-data.txt").chomp
 
-      open("https://cryptopals.com/static/challenge-data/8.txt") do |f|
-        raw_data = f.read
-        data = raw_data.lines.map do |line|
-          line.chomp!
-          original = line
+      data = raw_data.lines.map do |line|
+        line.chomp!
+        original = line
 
-          line = line.scan(/../).map { |hex| hex.hex }.pack("C*")
+        line = line.scan(/../).map { |hex| hex.hex }.pack("C*")
 
-          distances =
-            line.
-            each_char.
-            each_slice(blocksize).
-            with_index.
-            reduce({ distances: [], previous: [] }) do |acc, (block, idx)|
-              block = block.join
+        distances =
+          line.
+          each_char.
+          each_slice(blocksize).
+          with_index.
+          reduce({ distances: [], previous: [] }) do |acc, (block, idx)|
+            block = block.join
 
-              if idx == 0
-                acc[:previous] << block
-              else
-                acc[:previous].each do |previous|
-                  distance =
-                    calculate_distance(previous, block) / blocksize.to_f
+            if idx == 0
+              acc[:previous] << block
+            else
+              acc[:previous].each do |previous|
+                distance =
+                  calculate_distance(previous, block) / blocksize.to_f
 
-                  acc[:distances] << distance
-                end
-
-                acc[:previous] << block
+                acc[:distances] << distance
               end
 
-              acc
+              acc[:previous] << block
             end
 
-          avg_distance = (
-            distances[:distances].reduce(&:+) /
-              distances[:distances].length.to_f
-          )
+            acc
+          end
 
-          [avg_distance, original]
-        end
+        avg_distance = (
+          distances[:distances].reduce(&:+) /
+            distances[:distances].length.to_f
+        )
 
-        expected = "d880619740a8a19b7840a8a31c810a3d08649af70dc06f4fd5d2" \
-                   "d69c744cd283e2dd052f6b641dbf9d11b0348542bb5708649af7" \
-                   "0dc06f4fd5d2d69c744cd2839475c9dfdbc1d46597949d9c7e82" \
-                   "bf5a08649af70dc06f4fd5d2d69c744cd28397a93eab8d6aecd5" \
-                   "66489154789a6b0308649af70dc06f4fd5d2d69c744cd283d403" \
-                   "180c98c8f6db1f2a3f9c4040deb0ab51b29933f2c123c58386b0" \
-                   "6fba186a"
-
-        assert_equal expected, data.min[1]
+        [avg_distance, original]
       end
+
+      expected = "d880619740a8a19b7840a8a31c810a3d08649af70dc06f4fd5d2" \
+                 "d69c744cd283e2dd052f6b641dbf9d11b0348542bb5708649af7" \
+                 "0dc06f4fd5d2d69c744cd2839475c9dfdbc1d46597949d9c7e82" \
+                 "bf5a08649af70dc06f4fd5d2d69c744cd28397a93eab8d6aecd5" \
+                 "66489154789a6b0308649af70dc06f4fd5d2d69c744cd283d403" \
+                 "180c98c8f6db1f2a3f9c4040deb0ab51b29933f2c123c58386b0" \
+                 "6fba186a"
+
+      assert_equal expected, data.min[1]
     end
   end
 end

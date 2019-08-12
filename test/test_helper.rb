@@ -6,3 +6,4 @@ require "pry"
 require "base64"
 
 require "mt19937"
+require "sha1"

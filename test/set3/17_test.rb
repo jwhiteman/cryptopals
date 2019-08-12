@@ -19,7 +19,7 @@ module Set3
       MDAwMDA5aXRoIG15IHJhZy10b3AgZG93biBzbyBteSBoYWlyIGNhbiBibG93
     ).freeze
 
-    # stolen from technion
+    # refactored, after-the-fact, to use technique stolen from technion
     def valid_pkcs7?(str)
       last = str[-1]
 

@@ -1,5 +1,4 @@
 # https://cryptopals.com/sets/1/challenges/4
-# https://github.com/technion/matasano_challenge/blob/master/set1/chal4/chal4.rb
 require_relative "../test_helper"
 
 module Set1
@@ -16,6 +15,8 @@ module Set1
                 map { |hex| hex.hex ^ possible_key }.
                 pack("C*")
 
+            # this refactoring shamelessly stolen from technion, and used
+            # throughout...
             score =
               possible_plaintext.
               scan(/[ETAOIN SHRLDU]/i).
