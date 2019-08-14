@@ -24,7 +24,7 @@ module Set4
 
       assert _valid?(msg, digest)
 
-      digest[2] = "f" # randomly change a char
+      digest[2] = (digest[2].ord ^ 1).chr # alter a bit
 
       refute _valid?(msg, digest)
     end

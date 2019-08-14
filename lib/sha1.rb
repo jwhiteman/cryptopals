@@ -1,46 +1,48 @@
-# https://rosettacode.org/wiki/SHA-1
-# 
-# Calculates SHA-1 message digest of _string_. Returns binary digest.
-# For hexadecimal digest, use +*sha1(string).unpack('H*')+.
-#--
-# This is a simple, pure-Ruby implementation of SHA-1, following
-# the algorithm in FIPS 180-1.
-#++
-#
+# Adapted from https://rosettacode.org/wiki/SHA-1
 require 'stringio'
 module SHA1
   extend self
 
-  def exec(string)
-    # functions and constants
+  def exec(string, starting_state = nil, prepadded = false)
     mask = 0xffffffff
-    s = proc{|n, x| ((x << n) & mask) | (x >> (32 - n))}
-    f = [
-      proc {|b, c, d| (b & c) | (b.^(mask) & d)},
-      proc {|b, c, d| b ^ c ^ d},
-      proc {|b, c, d| (b & c) | (b & d) | (c & d)},
-      proc {|b, c, d| b ^ c ^ d},
+    s    = proc { |n, x| ((x << n) & mask) | (x >> (32 - n)) }
+    k    = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6].freeze
+    f    = [
+      proc { |b, c, d| (b & c) | (b.^(mask) & d) },
+      proc { |b, c, d| b ^ c ^ d },
+      proc { |b, c, d| (b & c) | (b & d) | (c & d) },
+      proc { |b, c, d| b ^ c ^ d },
     ].freeze
-    k = [0x5a827999, 0x6ed9eba1, 0x8f1bbcdc, 0xca62c1d6].freeze
 
     # initial hash
-    h = [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]
+    h =
+      starting_state || [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]
 
-    bit_len = string.size << 3
-    string += "\x80"
-    while (string.size % 64) != 56
-      string += "\0"
-    end
-    string = string.force_encoding('ascii-8bit') + [bit_len >> 32, bit_len & mask].pack("N2")
+    if !prepadded
+      bit_len = string.size << 3 # == string.size * (2 ** 3) == string.size * 8
+      string += "\x80"
+      while (string.size % 64) != 56
+        string += "\0"
+      end
+      string = string.force_encoding('ascii-8bit') + [bit_len >> 32, bit_len & mask].pack("N2")
 
-    if string.size % 64 != 0
-      fail "failed to pad to correct length"
+      if string.size % 64 != 0
+        fail "failed to pad to correct length"
+      end
     end
 
     io = StringIO.new(string)
     block = ""
 
     while io.read(64, block)
+=begin
+      if h == [114902420, 715287137, 3189294050, 737254332, 2833066845]
+        puts "earlier state found..."
+      else
+        puts "looping..."
+      end
+=end
+
       w = block.unpack("N16")
 
       # Process block.
