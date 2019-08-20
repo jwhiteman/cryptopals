@@ -3,8 +3,8 @@ require_relative "../test_helper"
 
 module Set4
   module Challenge25
-    KEY   = OpenSSL::Random.random_bytes(16).freeze
-    NONCE = rand(2 ** 64)
+    KEY25   = OpenSSL::Random.random_bytes(16).freeze
+    NONCE25 = rand(2 ** 64)
 
     # Q: 64-bit unsigned, native endian (uint64_t)
     def ctr(text, key, nonce)
@@ -61,7 +61,7 @@ module Set4
     end
 
     def edit_oracle(ciphertext, offset, newtext)
-      _edit(ciphertext, KEY, NONCE, offset, newtext)
+      _edit(ciphertext, KEY25, NONCE25, offset, newtext)
     end
   end
 
@@ -77,7 +77,7 @@ module Set4
       cipher.key = key
       plaintext  = cipher.update(ciphertext) + cipher.final
 
-      ciphertext = ctr(plaintext, KEY, NONCE)
+      ciphertext = ctr(plaintext, KEY25, NONCE25)
 
       p2         = "A" * ciphertext.length
       c2         = edit_oracle(ciphertext, 0, p2)

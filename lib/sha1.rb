@@ -1,4 +1,5 @@
 # Adapted from https://rosettacode.org/wiki/SHA-1
+# and from https://gist.github.com/tstevens/925415/6dd06487a8fcd5c4c3c9c18ee32eb60e2917b815
 require 'stringio'
 module SHA1
   extend self
@@ -19,16 +20,15 @@ module SHA1
       starting_state || [0x67452301, 0xefcdab89, 0x98badcfe, 0x10325476, 0xc3d2e1f0]
 
     if !prepadded
-      bit_len = string.size << 3 # == string.size * (2 ** 3) == string.size * 8
-      string += "\x80"
-      while (string.size % 64) != 56
-        string += "\0"
+      bit_string = string.unpack('B*')
+      message_length = string.unpack('B*')[0].length
+      bit_string[0] += "1"
+      until ((448 % 512) == (bit_string[0].length % 512)) do
+        bit_string[0] += "0"
       end
-      string = string.force_encoding('ascii-8bit') + [bit_len >> 32, bit_len & mask].pack("N2")
+      bit_string[0] += (("0" * (64 - message_length.to_s(2).length)) + message_length.to_s(2))
 
-      if string.size % 64 != 0
-        fail "failed to pad to correct length"
-      end
+      string = bit_string.pack('B*')
     end
 
     io = StringIO.new(string)
@@ -61,6 +61,7 @@ module SHA1
       [a,b,c,d,e].each_with_index {|x,i| h[i] = (h[i] + x) & mask}
     end
 
+    # I fucked this up...should be raw bytes be default. live and learn.
     h.pack("N5").unpack("H*").first
   end
 end

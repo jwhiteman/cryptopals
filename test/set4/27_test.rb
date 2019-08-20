@@ -3,8 +3,8 @@ require_relative "../test_helper"
 
 module Set4
   module Challenge27
-    KEY = OpenSSL::Random.random_bytes(16).freeze
-    IV  = KEY
+    KEY27 = OpenSSL::Random.random_bytes(16).freeze
+    IV27  = KEY27
 
     def pkcs_7(block, blocksize)
       padding_amount =
@@ -98,12 +98,12 @@ module Set4
       else
         data = pkcs_7(data, 16)
 
-        cbc_encrypt(data, KEY, IV)
+        cbc_encrypt(data, KEY27, IV27)
       end
     end
 
     def admin?(ciphertext)
-      data = cbc_decrypt(ciphertext, KEY, IV)
+      data = cbc_decrypt(ciphertext, KEY27, IV27)
 
       if data.bytes.any? { |byte| byte > 127 }
         # simulate an error from high ASCII value found
@@ -129,7 +129,7 @@ module Set4
       found_key         = p1.zip(p3).map { |l, r| l ^ r }.pack("C*")
 
       refute admin?(ciphertext)
-      assert_equal KEY, found_key
+      assert_equal KEY27, found_key
     end
   end
 end
