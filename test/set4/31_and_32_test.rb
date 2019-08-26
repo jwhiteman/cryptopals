@@ -1,4 +1,5 @@
 # https://cryptopals.com/sets/4/challenges/31
+# https://cryptopals.com/sets/4/challenges/32
 require_relative "../test_helper"
 
 require "sinatra/base"
