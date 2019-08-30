@@ -1,6 +1,6 @@
 # https://cryptopals.com/sets/5/challenges/34
 #
-# I probably should have used ØMQ here. This is stupid byzantine...
+# I probably should have used ØMQ here. This is a mess...
 #
 require_relative "../test_helper"
 
