@@ -1,7 +1,5 @@
-# CryptoPals WIP
+# CryptoPals Challengs (Ruby) - WIP
 
-WIP
+WIP: currently on Set 5, problem 39.
 
 See https://cryptopals.com/ for details.
-
-Use this only to compare notes *after* you've completed each challenge.
